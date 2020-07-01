@@ -72,6 +72,8 @@ def print_date(n):
 def incorrect_message():
     print("Incorrect parameters.")
     exit()
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--type', type=str)
 parser.add_argument('--principal', type=int)
@@ -84,41 +86,38 @@ args = parser.parse_args()
 if(len(sys.argv) != 5):
     incorrect_message()
 
+if args.type == "diff":
+    if args.principal and args.periods and args.interest:
+        calculate_diff(args.principal, args.periods, args.interest)
+    else:
+        incorrect_message()     
+elif args.type == "annuity":
+    if not args.interest:
+        incorrect_message()
+        
+    if args.principal and args.periods:
+        annuity_payment = annuity_payment(args.principal, args.periods, args.interest)
+        overpayment = abs_value(annuity_payment * args.periods - args.principal)
 
-parameter1_string = sys.argv[1]
-    if args.type == "diff":
-        if args.principal and args.periods and args.interest:
-            calculate_diff(args.principal, args.periods, args.interest)
-        else:
-            incorrect_message()     
-    elif args.type == "annuity":
-        if not args.interest:
-            incorrect_message()
-            
-        if args.principal and args.periods:
-            annuity_payment = annuity_payment(args.principal, args.periods, args.interest)
-            overpayment = abs_value(annuity_payment * args.periods - args.principal)
+        print("Your annuity payment = %i!" % annuity_payment)
+        print("Overpayment = " + str(overpayment))
+    elif args.payment and args.periods:
+        credit_principal = credit_principal(args.payment, args.periods, args.interest)
 
-            print("Your annuity payment = %i!" % annuity_payment)
-            print("Overpayment = " + str(overpayment))
-        elif args.payment and args.periods:
-            credit_principal = credit_principal(args.payment, args.periods, args.interest)
+        overpayment = abs_value(args.payment * args.periods - credit_principal)
 
-            overpayment = abs_value(args.payment * args.periods - credit_principal)
+        print("Your credit principal = %i!" % credit_principal)
+        print("Overpayment = " + str(overpayment))
 
-            print("Your credit principal = %i!" % credit_principal)
-            print("Overpayment = " + str(overpayment))
+    elif args.principal and args.payment:
 
-        elif args.principal and args.payment:
+        n = count_of_periods(args.principal, args.payment, args.interest)
+        overpayment = args.payment * n - args.principal
 
-            n = count_of_periods(args.principal, args.payment, args.interest)
-            overpayment = args.payment * n - args.principal
+        print_date(n)
 
-            print_date(n)
-
-            print("Overpayment = %i" % overpayment)
-        else:
-            incorrect_message()
+        print("Overpayment = %i" % overpayment)
     else:
         incorrect_message()
-    
+else:
+    incorrect_message()
