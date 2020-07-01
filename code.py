@@ -1,4 +1,5 @@
 import sys
+import argparse
 from math import log
 
 def abs_value(value):
@@ -68,72 +69,54 @@ def print_date(n):
         else:
             print("{} years and {} months to repay this credit!".format(years, months))
 
-if(len(sys.argv) != 5):
+def incorrect_message():
     print("Incorrect parameters.")
     exit()
+parser = argparse.ArgumentParser()
+parser.add_argument('--type', type=str)
+parser.add_argument('--principal', type=int)
+parser.add_argument('--payment', type = int)
+parser.add_argument('--periods', type=int)
+parser.add_argument('--interest', type=float)
+
+args = parser.parse_args()
+
+if(len(sys.argv) != 5):
+    incorrect_message()
 else:
     parameter1_string = sys.argv[1]
+    if args.type == "diff":
+        if args.principal and args.periods and args.interest:
+            calculate_diff(args.principal, args.periods, args.interest)
+        else:
+            incorrect_message()     
+    elif args.type == "annuity":
+        if not args.interest:
+            incorrect_message()
+            
+        if args.principal and args.periods:
+            annuity_payment = annuity_payment(args.principal, args.periods, args.interest)
+            overpayment = abs_value(annuity_payment * args.periods - args.principal)
 
-    if "--type=" in parameter1_string:
-        parameter1 = parameter1_string.replace("--type=", '')
-        if parameter1 == "diff":
-            parameter2_string = sys.argv[2]
-            parameter3_string = sys.argv[3]
-            parameter4_string = sys.argv[4]
+            print("Your annuity payment = %i!" % annuity_payment)
+            print("Overpayment = " + str(overpayment))
+        elif args.payment and args.periods:
+            credit_principal = credit_principal(args.payment, args.periods, args.interest)
 
-            if "--principal=" in parameter2_string and "--periods=" in parameter3_string and "--interest=" in parameter4_string:
-                parameter2 = int(parameter2_string.replace("--principal=", ''))
-                parameter3 = int(parameter3_string.replace("--periods=", ''))
-                parameter4 = float(parameter4_string.replace("--interest=", ''))
+            overpayment = abs_value(args.payment * args.periods - credit_principal)
 
-                calculate_diff(parameter2, parameter3, parameter4)
-            else:
-                print("Incorrect parameters.")
-                exit()       
-        elif parameter1 == "annuity":
-            parameter2_string = sys.argv[2]
-            parameter3_string = sys.argv[3]
-            parameter4_string = sys.argv[4]
+            print("Your credit principal = %i!" % credit_principal)
+            print("Overpayment = " + str(overpayment))
 
-            if "--interest=" in parameter4_string:
-                parameter4 = float(parameter4_string.replace("--interest=", ''))
-            else:
-                print("Incorrect parameters.")
-                exit()
+        elif args.principal and args.payment:
 
-            if "--principal=" in parameter2_string and "--periods=" in parameter3_string:
-                parameter2 = int(parameter2_string.replace("--principal=", ''))
-                parameter3 = int(parameter3_string.replace("--periods=", ''))
+            n = count_of_periods(args.principal, args.payment, args.interest)
+            overpayment = args.payment * n - args.principal
 
-                annuity_payment = annuity_payment(parameter2, parameter3, parameter4)
-                overpayment = abs_value(annuity_payment * parameter3 - parameter2)
+            print_date(n)
 
-                print("Your annuity payment = %i!" % annuity_payment)
-                print("Overpayment = " + str(overpayment))
-            elif "--payment=" in parameter2_string and "--periods=" in parameter3_string:
-                parameter2 = int(parameter2_string.replace("--payment=", ''))
-                parameter3 = int(parameter3_string.replace("--periods=", ''))
-
-                credit_principal = credit_principal(parameter2, parameter3, parameter4)
-
-                overpayment = abs_value(parameter2 * parameter3 - credit_principal)
-
-                print("Your credit principal = %i!" % credit_principal)
-                print("Overpayment = " + str(overpayment))
-
-            elif "--principal=" in parameter2_string and "--payment=" in parameter3_string:
-                parameter2 = int(parameter2_string.replace("--principal=", ''))
-                parameter3 = int(parameter3_string.replace("--payment=", ''))
-
-                n = count_of_periods(parameter2, parameter3, parameter4)
-                overpayment = parameter3 * n - parameter2
-
-                print_date(n)
-
-                print("Overpayment = %i" % overpayment)
-            else:
-                print("Incorrect parameters.")
-                exit()
+            print("Overpayment = %i" % overpayment)
+        else:
+            incorrect_message()
     else:
-        print("Incorrect parameters.")
-        exit()
+        incorrect_message()
