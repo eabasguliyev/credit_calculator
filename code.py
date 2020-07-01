@@ -83,8 +83,9 @@ args = parser.parse_args()
 
 if(len(sys.argv) != 5):
     incorrect_message()
-else:
-    parameter1_string = sys.argv[1]
+
+
+parameter1_string = sys.argv[1]
     if args.type == "diff":
         if args.principal and args.periods and args.interest:
             calculate_diff(args.principal, args.periods, args.interest)
@@ -120,3 +121,4 @@ else:
             incorrect_message()
     else:
         incorrect_message()
+    
